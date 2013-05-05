@@ -1,7 +1,7 @@
 LagRestart
 ============
 
-Restart your bukkit server whenever the TPS get too low
+Restart your bukkit server whenever the TPS get too low.
 
 How to build
 ------------
