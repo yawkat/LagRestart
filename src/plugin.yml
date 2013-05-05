@@ -1,0 +1,13 @@
+name: LagRestart
+main: at.yawk.bukkit.lagrestart.LagRestart
+version: ${version}
+description: Restart the server if TPS get too low
+commands:
+    lr:
+        description: Display TPS
+        usage: /lr
+        permission: lagrestart.display
+    lagrestart:
+        description: Disable / Enable LagRestart
+        usage: /lagrestart [on/off]
+        permission: lagrestart.toggle
