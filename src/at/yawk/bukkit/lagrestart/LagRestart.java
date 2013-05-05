@@ -51,10 +51,15 @@ public class LagRestart extends JavaPlugin {
                         scheduler.schedule(new Runnable() {
                             @Override
                             public void run() {
-                                for (Player player : getServer().getOnlinePlayers()) {
-                                    player.kickPlayer("Restarting server.");
-                                }
-                                getServer().shutdown();
+                                getServer().getScheduler().runTask(LagRestart.this, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        for (Player player : getServer().getOnlinePlayers()) {
+                                            player.kickPlayer("Restarting server.");
+                                        }
+                                        getServer().shutdown();
+                                    }
+                                });
                             }
                         }, waitingTime, TimeUnit.SECONDS);
                     }
@@ -83,7 +88,12 @@ public class LagRestart extends JavaPlugin {
             scheduler.schedule(new Runnable() {
                 @Override
                 public void run() {
-                    getServer().broadcastMessage(message);
+                    getServer().getScheduler().runTask(LagRestart.this, new Runnable() {
+                        @Override
+                        public void run() {
+                            getServer().broadcastMessage(message);
+                        }
+                    });
                 }
             }, totalSeconds - seconds, TimeUnit.SECONDS);
         }
