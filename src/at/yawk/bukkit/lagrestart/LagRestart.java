@@ -14,7 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author Yawkat
  */
 public class LagRestart extends JavaPlugin {
-    private float minimumTps = 10;
+    private float minimumTps = 12;
     private boolean enabled = false;
     private ScheduledExecutorService scheduler;
     
