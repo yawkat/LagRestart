@@ -16,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class LagRestart extends JavaPlugin {
     private float minimumTps = 12;
     private boolean enabled = false;
+    private int belowMinimumSeconds = 0;
     private ScheduledExecutorService scheduler;
     
     private volatile long tickIndex;
@@ -43,25 +44,30 @@ public class LagRestart extends JavaPlugin {
                     tps = tickIndex - lastTickIndex;
                     lastTickIndex = tickIndex;
                     if (tps < minimumTps && !restartScheduled) {
-                        restartScheduled = true;
-                        final int waitingTime = 5 * 60;
-                        for (int i = 0; i <= waitingTime; i++) {
-                            registerRestartWarning(i, waitingTime);
-                        }
-                        scheduler.schedule(new Runnable() {
-                            @Override
-                            public void run() {
-                                getServer().getScheduler().runTask(LagRestart.this, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        for (Player player : getServer().getOnlinePlayers()) {
-                                            player.kickPlayer("Restarting server.");
-                                        }
-                                        getServer().shutdown();
-                                    }
-                                });
+                        belowMinimumSeconds++;
+                        if (belowMinimumSeconds > 30) {
+                            restartScheduled = true;
+                            final int waitingTime = 5 * 60;
+                            for (int i = 0; i <= waitingTime; i++) {
+                                registerRestartWarning(i, waitingTime);
                             }
-                        }, waitingTime, TimeUnit.SECONDS);
+                            scheduler.schedule(new Runnable() {
+                                @Override
+                                public void run() {
+                                    getServer().getScheduler().runTask(LagRestart.this, new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            for (Player player : getServer().getOnlinePlayers()) {
+                                                player.kickPlayer("Restarting server.");
+                                            }
+                                            getServer().shutdown();
+                                        }
+                                    });
+                                }
+                            }, waitingTime, TimeUnit.SECONDS);
+                        }
+                    } else {
+                        belowMinimumSeconds = 0;
                     }
                 }
             }
