@@ -46,25 +46,7 @@ public class LagRestart extends JavaPlugin {
                     if (tps < minimumTps && !restartScheduled) {
                         belowMinimumSeconds++;
                         if (belowMinimumSeconds > 30) {
-                            restartScheduled = true;
-                            final int waitingTime = 5 * 60;
-                            for (int i = 0; i <= waitingTime; i++) {
-                                registerRestartWarning(i, waitingTime);
-                            }
-                            scheduler.schedule(new Runnable() {
-                                @Override
-                                public void run() {
-                                    getServer().getScheduler().runTask(LagRestart.this, new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            for (Player player : getServer().getOnlinePlayers()) {
-                                                player.kickPlayer("Restarting server.");
-                                            }
-                                            getServer().shutdown();
-                                        }
-                                    });
-                                }
-                            }, waitingTime, TimeUnit.SECONDS);
+                            scheduleRestart();
                         }
                     } else {
                         belowMinimumSeconds = 0;
@@ -108,7 +90,7 @@ public class LagRestart extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String lbl, String[] args) {
         if (cmd.testPermission(sender)) {
-            if (cmd.getName().equals("lr")) {
+            if (args.length == 0) {
                 final String prefix = ChatColor.GOLD + "| " + ChatColor.GRAY;
                 sender.sendMessage(prefix + "TPS: " + ChatColor.DARK_PURPLE + Math.round(tps * 100) / 100F);
                 {
@@ -127,7 +109,7 @@ public class LagRestart extends JavaPlugin {
                     sender.sendMessage(bar.toString());
                 }
                 sender.sendMessage(prefix + "Total ticks: " + ChatColor.DARK_PURPLE + tickIndex);
-            } else if (cmd.getName().equals("lagrestart")) {
+            } else {
                 String prefix = ChatColor.GRAY + "LagRestart: " + ChatColor.GOLD;
                 if (args.length != 1) {
                     sender.sendMessage(prefix + "Invalid usage");
@@ -145,6 +127,13 @@ public class LagRestart extends JavaPlugin {
                         onEnable();
                         sender.sendMessage(prefix + "Enabled");
                     }
+                } else if (args[0].equalsIgnoreCase("schedule")) {
+                    if (restartScheduled) {
+                        sender.sendMessage(prefix + "A restart is already scheduled!");
+                    } else {
+                        scheduleRestart();
+                        sender.sendMessage(prefix + "Scheduled restart.");
+                    }
                 } else {
                     sender.sendMessage(prefix + "Invalid usage");
                 }
@@ -158,5 +147,27 @@ public class LagRestart extends JavaPlugin {
         enabled = false;
         getServer().getScheduler().cancelTasks(this);
         scheduler.shutdownNow();
+    }
+    
+    private void scheduleRestart() {
+        restartScheduled = true;
+        final int waitingTime = 5 * 60;
+        for (int i = 0; i <= waitingTime; i++) {
+            registerRestartWarning(i, waitingTime);
+        }
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                getServer().getScheduler().runTask(LagRestart.this, new Runnable() {
+                    @Override
+                    public void run() {
+                        for (Player player : getServer().getOnlinePlayers()) {
+                            player.kickPlayer("Restarting server.");
+                        }
+                        getServer().shutdown();
+                    }
+                });
+            }
+        }, waitingTime, TimeUnit.SECONDS);
     }
 }

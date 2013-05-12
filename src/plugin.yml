@@ -4,10 +4,6 @@ version: ${version}
 description: Restart the server if TPS get too low
 commands:
     lr:
-        description: Display TPS
-        usage: /lr
+        description: Display TPS, toggle LagRestart, schedule restart manually
+        usage: /lr [on|off|schedule]
         permission: lagrestart.display
-    lagrestart:
-        description: Disable / Enable LagRestart
-        usage: /lagrestart [on/off]
-        permission: lagrestart.toggle
